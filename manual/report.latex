@@ -1,0 +1,20 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{indentfirst}
+\usepackage{lscape}
+\usepackage[style=authoryear,natbib=true,url=false,isbn=false]{biblatex}
+%\addbibresource{}
+
+\begin{document}
+
+\begin{titlepage}
+  \begin{center}
+    \textsc{\Large{<+TITLE+>}}\\
+    \Large{Kevin Murray}\\
+    \vfill
+    \large{\today}
+  \end{center}
+\end{titlepage}
+
+\end{document}
