@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ -f "setup.py" ]]
+then
+	python setup.py nosetests
+else
+	nosetests $@ --with-coverage --cover-package pipedream
+fi
+pep8 pipedream tests
+exit $?
