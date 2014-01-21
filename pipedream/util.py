@@ -51,3 +51,24 @@ def get_ip(iface='eth0', localhost=False, use_netifaces=True):
                 return None
             else:
                 return fallback
+
+def has_internet(url="http://www.google.com"):
+    """has_internet checks if we have internet
+
+    :param url: The URL used to check connectivity. Must contain protocol.
+    :param type: str
+    :returns: bool -- True if we have internet else False
+    """
+    try:
+        # Python 3 compatible way of doing things
+        from urllib.request import urlopen
+        from urllib.error import URLError
+    except ImportError:
+        # py2.x
+        from urllib2 import URLError, urlopen
+    try:
+        # Try to open url. Raises URLError if we can't.
+        response = urlopen(url)
+        return True
+    except URLError:
+        return False
