@@ -1,5 +1,4 @@
-
-def get_ip(iface='eth0', localhost=False, use_netifaces=True):
+def get_ip(iface='eth0', localhost=False, use_netifaces=True, use_ioctl=True):
     """get_ip gets the current external (or LAN) IP of any machine.
 
     :param localhost: On *NIX, allows the return of 127.0.0.1, which is
@@ -24,27 +23,25 @@ def get_ip(iface='eth0', localhost=False, use_netifaces=True):
     except ImportError:
         import socket
         try:
+            # check if we want to use ioctl
+            if not use_ioctl:
+                raise ImportError
             import struct
-            # First, we get the IP associated with the FQDN of this machine
-            hostname_ip = socket.gethostbyname(socket.getfqdn())
-            # If this is "127.0.0.1", we're on UNIX. If localhost != True , we
-            # won't return 127.0.0.1, so we want to get the "real" IP. We can
-            # cheat and use UNIX-only methods like ioctl.
-            if hostname_ip.startswith("127.0.0.1") and not localhost:
-                import fcntl # linux only, methinks
-                # This is Black Magic, see http://stackoverflow.com/q/166506/
-                ifreq = struct.pack('16sH14s', iface, socket.AF_INET, '\x00'*14)
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sockfd = sock.fileno()
-                SIOCGIFADDR = 0x8915
-                res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
-                ip = struct.unpack('16sH2x4s8x', res)[2]
-                return socket.inet_ntoa(ip)
-            return hostname_ip
+            # linux only
+            import fcntl
+            # This is Black Magic, see http://stackoverflow.com/q/166506/
+            ifreq = struct.pack('16sH14s', iface, socket.AF_INET, '\x00'*14)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sockfd = sock.fileno()
+            SIOCGIFADDR = 0x8915
+            res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
+            ip = struct.unpack('16sH2x4s8x', res)[2]
+            return socket.inet_ntoa(ip)
         except (ImportError, IOError):
             # The fall-back-fall-back. This works (gets the LAN IP) on windows,
             # but on linux it (normally) returns localhost
-            fallback = socket.gethostbyname(socket.gethostname())
+            # We get the IP associated with the FQDN of this machine
+            fallback = socket.gethostbyname(socket.getfqdn())
             if localhost and fallback.startswith("127.0"):
                 return fallback
             elif fallback.startswith("127.0"):
