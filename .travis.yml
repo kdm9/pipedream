@@ -10,6 +10,7 @@ before_install:
 # https://github.com/travis-ci/travis-cookbooks/issues/155
  - sudo rm -rf /dev/shm
  - sudo ln -s /run/shm /dev/shm
+ - pip install pep8
 
 script:
  - python setup.py install
