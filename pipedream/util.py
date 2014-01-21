@@ -1,4 +1,37 @@
-def get_ip(iface='eth0', localhost=False, use_netifaces=True, use_ioctl=True):
+def get_primary_network_interface():
+    """get_primary_network_interface does what it says on the tin
+
+    :returns: str -- This computer's primary NIC name
+    """
+    from sys import platform
+    try:
+        import netifaces
+    except ImportError:
+        return None
+    # get a sorted list of all interface
+    all_interfaces = sorted(netifaces.interfaces())
+    best_iface = None
+    # on linux, we know what to do
+    if platform.startswith("linux"):
+        for iface in all_interfaces:
+            # prefer ethernet
+            if iface.startswith("eth"):
+                return iface
+            # then wifi
+            elif iface.startswith("wlan") \
+                    and not best_iface.startswith("wlan"):
+                best_iface = iface
+            # then, if nothing else, whatever we have
+            elif best_iface is None:
+                best_iface = iface
+        return best_iface
+    else:
+        # I've got no idea what to do on non-linux
+        #TODO work this out
+        return all_interfaces[0]
+
+
+def get_ip(iface=None, localhost=False, use_netifaces=True, use_ioctl=True):
     """get_ip gets the current external (or LAN) IP of any machine.
 
     :param localhost: On *NIX, allows the return of 127.0.0.1, which is
@@ -8,6 +41,8 @@ def get_ip(iface='eth0', localhost=False, use_netifaces=True, use_ioctl=True):
     :type iface: str
     :returns: str -- The current machine's external/LAN IP, or None.
     """
+    if iface is None:
+        iface = get_primary_network_interface()
     try:
         # It's python, someone's already written an awesome module to do this.
         # netifaces should always import, as we've got it in setup.py. But
@@ -48,6 +83,7 @@ def get_ip(iface='eth0', localhost=False, use_netifaces=True, use_ioctl=True):
                 return None
             else:
                 return fallback
+
 
 def has_internet(url="http://74.125.237.177"):
     """has_internet checks if we have internet
