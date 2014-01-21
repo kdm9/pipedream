@@ -11,11 +11,10 @@ install_requires = [
         "pyzmq==14.0.1",
         "nose>=1.3.0",
         "coverage==3.7.1",
+        "pep8==1.4.6",
         ]
 
 test_requires = [
-        "pep8==1.4.6",
-        "pylint==1.0.0",
         ]
 
 setup(
