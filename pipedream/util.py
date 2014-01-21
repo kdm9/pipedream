@@ -49,7 +49,7 @@ def get_ip(iface='eth0', localhost=False, use_netifaces=True, use_ioctl=True):
             else:
                 return fallback
 
-def has_internet(url="http://www.google.com"):
+def has_internet(url="http://74.125.237.177"):
     """has_internet checks if we have internet
 
     :param url: The URL used to check connectivity. Must contain protocol.
@@ -65,7 +65,7 @@ def has_internet(url="http://www.google.com"):
         from urllib2 import URLError, urlopen
     try:
         # Try to open url. Raises URLError if we can't.
-        response = urlopen(url)
+        response = urlopen(url, timeout=1)
         return True
     except URLError:
         return False
